@@ -8,6 +8,17 @@
     <link rel="icon" href="./icon.png" />
     <link rel="apple-touch-icon" href="./icone2.png" />
     <title>Dami Duarte</title>
+    <script>
+      (function () {
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get("redirect");
+        if (redirect) {
+          params.delete("redirect");
+          const newUrl = window.location.origin + window.location.pathname + (params.toString() ? `?${params}` : "") + redirect;
+          window.history.replaceState(null, "", newUrl);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
