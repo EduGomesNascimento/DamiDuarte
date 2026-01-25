@@ -23,6 +23,10 @@ jobs:
         working-directory: web
         run: npm install --no-fund --no-audit
 
+      - name: Fix Vite permissions
+        working-directory: web
+        run: chmod +x node_modules/.bin/vite || true
+
       - name: Build
         working-directory: web
         env:
