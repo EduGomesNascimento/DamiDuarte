@@ -74,7 +74,7 @@ const Login = () => {
       <section className="login-layout">
         <div className="card hero soft">
           <div className="login-logo">
-            <img src="/icone2.png" alt="Dami Duarte" />
+            <img src={`${import.meta.env.BASE_URL}icone2.png`} alt="Dami Duarte" />
             <span>Dami Duarte</span>
           </div>
           <h1>Agenda e novidades em um so lugar</h1>

@@ -15,7 +15,7 @@ export const OwnerShell = ({ children }: { children: React.ReactNode }) => {
     <main className="app-shell">
       <header className="shell-header">
         <div className="brand">
-          <img src="/icone2.png" alt="Dami Duarte" />
+          <img src={`${import.meta.env.BASE_URL}icone2.png`} alt="Dami Duarte" />
           <div>
             <div className="badge">Owner</div>
             <h1>Painel Dami</h1>

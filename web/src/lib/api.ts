@@ -13,10 +13,6 @@ export const apiFetch = async <T>(
 ): Promise<T> => {
   const session = getSession();
   const headers = new Headers(options.headers || {});
-  headers.set("Content-Type", "application/json");
-  if (session?.token) {
-    headers.set("Authorization", `Bearer ${session.token}`);
-  }
 
   let url = `${config.apiBase}${path}`;
   let method = options.method || "GET";

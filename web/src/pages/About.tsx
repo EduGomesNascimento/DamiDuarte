@@ -28,7 +28,7 @@ const About = () => {
           </p>
         </div>
         <img
-          src="/fotodami.jpg"
+          src={`${import.meta.env.BASE_URL}fotodami.jpg`}
           alt="Dami Duarte"
           style={{ width: "100%", maxWidth: 420, borderRadius: 18, marginTop: "1rem" }}
         />
