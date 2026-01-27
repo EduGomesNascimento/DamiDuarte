@@ -76,6 +76,19 @@ const OwnerHome = () => {
               <div>{item.clientName || item.userId}</div>
               <div>{formatCurrency(item.value)}</div>
               <div>Status: {item.status}</div>
+              <button
+                className="secondary"
+                onClick={() =>
+                  applyTemplate(
+                    "Lembrete de horario",
+                    `Oi ${item.clientName || ""}! Seu horario esta chegando em ${new Date(item.startAt).toLocaleDateString(
+                      "pt-BR"
+                    )}. Quer confirmar?`
+                  )
+                }
+              >
+                Preparar lembrete
+              </button>
             </div>
           ))}
         </div>

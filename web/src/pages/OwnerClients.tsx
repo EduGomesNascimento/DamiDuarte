@@ -147,6 +147,16 @@ const OwnerClients = () => {
                           <button className="secondary" onClick={() => handleDeactivate(item.userId)}>
                             Desativar
                           </button>
+                          {item.phoneE164 && (
+                            <a
+                              className="pill-link"
+                              href={`https://wa.me/${item.phoneE164.replace("+", "")}`}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              WhatsApp
+                            </a>
+                          )}
                         </div>
                       </td>
                     </tr>

@@ -28,15 +28,33 @@ const OwnerAgenda = () => {
   const [items, setItems] = useState<any[]>([]);
   const [form, setForm] = useState<any>(blank);
   const [clients, setClients] = useState<any[]>([]);
+  const [filters, setFilters] = useState({
+    userId: "",
+    status: "",
+    dateFrom: "",
+    dateTo: ""
+  });
 
   const load = () => {
-    apiFetch<any[]>("/owner/appointments").then(setItems).catch(() => setItems([]));
+    const params = new URLSearchParams();
+    if (filters.userId) params.set("userId", filters.userId);
+    if (filters.status) params.set("status", filters.status);
+    if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
+    if (filters.dateTo) params.set("dateTo", filters.dateTo);
+    apiFetch<any[]>(`/owner/appointments?${params.toString()}`)
+      .then(setItems)
+      .catch(() => setItems([]));
     apiFetch<any[]>("/owner/users").then(setClients).catch(() => setClients([]));
   };
 
   useEffect(() => {
     load();
   }, []);
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.userId, filters.status, filters.dateFrom, filters.dateTo]);
 
   const handleSubmit = async () => {
     if (form.appointmentId) {
@@ -63,10 +81,81 @@ const OwnerAgenda = () => {
     load();
   };
 
+  const quickUpdateStatus = async (id: string, status: string) => {
+    await apiFetch(`/owner/appointments/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ status })
+    });
+    load();
+  };
+
+  const quickReschedule = async (id: string, startAt: string, endAt: string) => {
+    const start = new Date(startAt);
+    const end = new Date(endAt);
+    start.setDate(start.getDate() + 7);
+    end.setDate(end.getDate() + 7);
+    await apiFetch(`/owner/appointments/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ startAt: start.toISOString(), endAt: end.toISOString() })
+    });
+    load();
+  };
+
+  const getClientPhone = (userId: string) => {
+    const client = clients.find((c) => c.userId === userId);
+    return client?.phoneE164 || "";
+  };
+
   return (
     <section className="grid">
       <div className="card">
         <h2>Agenda</h2>
+        <div className="grid grid-2">
+          <label>
+            Filtro cliente
+            <select
+              value={filters.userId}
+              onChange={(e) => setFilters({ ...filters, userId: e.target.value })}
+            >
+              <option value="">Todos</option>
+              {clients.map((client) => (
+                <option key={client.userId} value={client.userId}>
+                  {client.nicknamePublic || client.name || client.email}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Status
+            <select
+              value={filters.status}
+              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+            >
+              <option value="">Todos</option>
+              <option value="SCHEDULED">SCHEDULED</option>
+              <option value="CONFIRMED">CONFIRMED</option>
+              <option value="CANCELED">CANCELED</option>
+              <option value="DONE">DONE</option>
+            </select>
+          </label>
+          <label>
+            De
+            <input
+              type="date"
+              value={filters.dateFrom}
+              onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
+            />
+          </label>
+          <label>
+            Ate
+            <input
+              type="date"
+              value={filters.dateTo}
+              onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
+            />
+          </label>
+        </div>
+        <div className="divider" />
         <div className="grid grid-2">
           <label>
             Cliente
@@ -126,13 +215,38 @@ const OwnerAgenda = () => {
               <div>{item.clientName || item.userId}</div>
               <div>{formatCurrency(item.value)}</div>
               <div>Status: {item.status}</div>
+              {item.notesPublic && <p>{item.notesPublic}</p>}
+              <div className="chips">
+                <button className="secondary" onClick={() => quickUpdateStatus(item.appointmentId, "CONFIRMED")}>
+                  Confirmar
+                </button>
+                <button className="secondary" onClick={() => quickUpdateStatus(item.appointmentId, "DONE")}>
+                  Concluir
+                </button>
+                <button className="secondary" onClick={() => quickUpdateStatus(item.appointmentId, "CANCELED")}>
+                  Cancelar
+                </button>
+              </div>
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <button className="secondary" onClick={() => handleEdit(item)}>
                   Editar
                 </button>
+                <button className="secondary" onClick={() => quickReschedule(item.appointmentId, item.startAt, item.endAt)}>
+                  +7 dias
+                </button>
                 <button className="secondary" onClick={() => handleDelete(item.appointmentId)}>
                   Excluir
                 </button>
+                {getClientPhone(item.userId) && (
+                  <a
+                    className="pill-link"
+                    href={`https://wa.me/${getClientPhone(item.userId).replace("+", "")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    WhatsApp
+                  </a>
+                )}
               </div>
             </div>
           ))}
