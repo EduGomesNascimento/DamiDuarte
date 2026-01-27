@@ -60,7 +60,8 @@ export const apiFetch = async <T>(
   if (response.status === 401) {
     clearSession();
     if (typeof window !== "undefined") {
-      window.location.href = "/login";
+      const base = (import.meta as any).env?.BASE_URL || "/";
+      window.location.href = `${base}login`;
     }
     throw new Error("Sessao expirada. Faca login novamente.");
   }

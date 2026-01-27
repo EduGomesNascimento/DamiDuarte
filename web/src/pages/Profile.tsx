@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 import { getSession, setSession } from "../lib/session";
+import { promptOneSignal } from "../lib/onesignal";
 
 const Profile = () => {
   const session = getSession();
@@ -29,6 +30,10 @@ const Profile = () => {
     setStatus("Atualizado!");
   };
 
+  const handlePush = async () => {
+    await promptOneSignal();
+  };
+
   return (
     <section className="grid">
       <div className="card">
@@ -47,6 +52,14 @@ const Profile = () => {
         </label>
         <button onClick={handleSave}>Salvar</button>
         {status && <p>{status}</p>}
+      </div>
+      <div className="card">
+        <h3>Notificacoes</h3>
+        <p>Ative para receber avisos de horarios e novidades.</p>
+        <button onClick={handlePush}>Ativar notificacoes</button>
+        <p style={{ color: "var(--muted)" }}>
+          No iOS, use o Safari e toque em Compartilhar &gt; Adicionar a Tela de Inicio.
+        </p>
       </div>
     </section>
   );

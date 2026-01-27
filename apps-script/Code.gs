@@ -508,11 +508,14 @@ function listAppointmentsForUser(userId, upcomingOnly) {
   return all
     .filter((item) => item.userId === userId)
     .filter((item) => (upcomingOnly ? new Date(item.startAt) >= now : true))
-    .sort((a, b) => new Date(a.startAt) - new Date(b.startAt));
+    .sort((a, b) => new Date(a.startAt) - new Date(b.startAt))
+    .map(sanitizeAppointmentForClient);
 }
 
 function listHistoryForUser(userId, days) {
-  const items = listHistoryAll(days).items.filter((item) => item.userId === userId);
+  const items = listHistoryAll(days).items
+    .filter((item) => item.userId === userId)
+    .map(sanitizeAppointmentForClient);
   const total = items
     .filter((item) => item.status === "DONE")
     .reduce((sum, item) => sum + Number(item.value || 0), 0);
@@ -792,6 +795,15 @@ function attachClientNames(items) {
     item.clientName = map[item.userId] || item.userId;
     return item;
   });
+}
+
+function sanitizeAppointmentForClient(item) {
+  const copy = {};
+  Object.keys(item).forEach((key) => {
+    if (key === "notesPrivate") return;
+    copy[key] = item[key];
+  });
+  return copy;
 }
 
 function sendPush(payload, auth) {
