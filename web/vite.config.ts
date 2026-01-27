@@ -5,7 +5,7 @@ export default defineConfig({
   base: "/DamiDuarte/",
   plugins: [react()],
   build: {
-    outDir: "../docs",
+    outDir: "dist",
     emptyOutDir: true
   }
 });
