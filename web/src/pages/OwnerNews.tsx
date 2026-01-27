@@ -71,6 +71,12 @@ const OwnerNews = () => {
       <div className="card">
         <h3>Lista</h3>
         <div className="list">
+          {items.length === 0 && (
+            <div className="card soft">
+              <strong>Nenhum anuncio</strong>
+              <p>Publique novidades para suas clientes.</p>
+            </div>
+          )}
           {items.map((item) => (
             <div key={item.announcementId} className="card">
               <strong>{item.title}</strong>

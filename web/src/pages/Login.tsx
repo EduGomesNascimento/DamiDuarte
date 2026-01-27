@@ -72,16 +72,30 @@ const Login = () => {
   return (
     <main className="app-shell">
       <section className="login-layout">
-        <div className="card hero soft">
+        <div className="card login-hero soft">
           <div className="login-logo">
             <img src={`${import.meta.env.BASE_URL}icone2.png`} alt="Dami Duarte" />
             <span>Dami Duarte</span>
           </div>
           <h1>Agenda e novidades em um so lugar</h1>
           <p>Entre com Google para ver seus horarios, historico e novidades.</p>
-          <div ref={buttonRef} />
-          {loading && <p>Carregando login...</p>}
-          {error && <p>{error}</p>}
+          <div className="login-actions">
+            <div ref={buttonRef} />
+            {loading && <p>Carregando login...</p>}
+            {error && <p>{error}</p>}
+          </div>
+          <div className="login-highlights">
+            <div className="highlight-card">
+              <span className="badge">Agenda</span>
+              <strong>Horarios organizados</strong>
+              <p>Seus atendimentos e ajustes em tempo real.</p>
+            </div>
+            <div className="highlight-card">
+              <span className="badge">Historico</span>
+              <strong>Ultimos 30 dias</strong>
+              <p>Valores e registros para facilitar seu controle.</p>
+            </div>
+          </div>
         </div>
         <div className="card login-panel">
           <span className="badge">Push no iPhone</span>
@@ -89,9 +103,14 @@ const Login = () => {
           <p>
             Para receber notificacoes no iOS, abra no Safari e toque em Compartilhar &gt; Adicionar a Tela de Inicio.
           </p>
+          <div className="divider" />
           <div>
             <strong>WhatsApp direto</strong>
             <p>Agende horarios e confirme atendimentos por WhatsApp.</p>
+          </div>
+          <div className="login-note">
+            <strong>Atendimento personalizado</strong>
+            <p>Beleza, cosmeticos e cuidados pessoais com a Dami.</p>
           </div>
         </div>
       </section>

@@ -14,7 +14,12 @@ const Catalog = () => {
       <div className="card">
         <h2>Catalogo</h2>
         <div className="grid grid-2">
-          {items.length === 0 && <p>Nenhum produto ativo.</p>}
+          {items.length === 0 && (
+            <div className="card soft">
+              <strong>Nenhum produto ativo</strong>
+              <p>Quando tiver novidades no catalogo, vao aparecer aqui.</p>
+            </div>
+          )}
           {items.map((item) => (
             <div key={item.productId} className="card">
               {item.photoUrl && <img src={item.photoUrl} alt={item.name} style={{ width: "100%", borderRadius: 12 }} />}

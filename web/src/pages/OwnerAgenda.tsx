@@ -90,6 +90,12 @@ const OwnerAgenda = () => {
       <div className="card">
         <h3>Lista</h3>
         <div className="list">
+          {items.length === 0 && (
+            <div className="card soft">
+              <strong>Agenda vazia</strong>
+              <p>Crie o primeiro atendimento usando o formulario acima.</p>
+            </div>
+          )}
           {items.map((item) => (
             <div key={item.appointmentId} className="card">
               <strong>{new Date(item.startAt).toLocaleString("pt-BR")}</strong>

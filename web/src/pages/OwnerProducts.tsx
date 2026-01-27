@@ -82,6 +82,12 @@ const OwnerProducts = () => {
       <div className="card">
         <h3>Lista</h3>
         <div className="grid grid-2">
+          {items.length === 0 && (
+            <div className="card soft">
+              <strong>Sem produtos cadastrados</strong>
+              <p>Adicione seus produtos ativos aqui.</p>
+            </div>
+          )}
           {items.map((item) => (
             <div key={item.productId} className="card">
               {item.photoUrl && <img src={item.photoUrl} alt={item.name} style={{ width: "100%", borderRadius: 12 }} />}

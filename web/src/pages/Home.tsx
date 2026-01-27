@@ -57,6 +57,7 @@ const Home = () => {
         <div className="card">
           <h3>Total 30 dias</h3>
           <div className="kpi">{formatCurrency(total30)}</div>
+          <p style={{ color: "var(--muted)" }}>Soma dos atendimentos concluidos.</p>
         </div>
       </div>
       <div className="card">

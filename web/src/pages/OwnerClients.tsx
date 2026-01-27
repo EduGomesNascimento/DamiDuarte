@@ -90,6 +90,12 @@ const OwnerClients = () => {
       <div className="card">
         <h3>Lista</h3>
         <div className="list">
+          {items.length === 0 && (
+            <div className="card soft">
+              <strong>Sem clientes cadastradas</strong>
+              <p>Crie a primeira cliente para comecar.</p>
+            </div>
+          )}
           {items.map((item) => (
             <div key={item.userId} className="card">
               <strong>{item.name}</strong>

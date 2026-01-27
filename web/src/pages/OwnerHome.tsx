@@ -57,7 +57,12 @@ const OwnerHome = () => {
       <div className="card">
         <h3>Proximos horarios</h3>
         <div className="list">
-          {upcoming.length === 0 && <p>Sem horarios futuros.</p>}
+          {upcoming.length === 0 && (
+            <div className="card soft">
+              <strong>Nenhum horario futuro</strong>
+              <p>Crie um agendamento para começar a preencher a agenda.</p>
+            </div>
+          )}
           {upcoming.map((item) => (
             <div key={item.appointmentId} className="card">
               <strong>{new Date(item.startAt).toLocaleString("pt-BR")}</strong>
