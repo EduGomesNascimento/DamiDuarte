@@ -9,17 +9,17 @@ const Profile = () => {
   const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    apiFetch<any>("/me/profile")
+    apiFetch<any>("/me")
       .then((data) => {
-        setNicknamePublic(data.nicknamePublic || "");
-        setBirthDate(data.birthDate || "");
+        setNicknamePublic(data.user.nicknamePublic || "");
+        setBirthDate(data.user.birthDate || "");
       })
       .catch(() => null);
   }, []);
 
   const handleSave = async () => {
     setStatus(null);
-    const updated = await apiFetch<any>("/me/profile", {
+    const updated = await apiFetch<any>("/me", {
       method: "PUT",
       body: JSON.stringify({ nicknamePublic, birthDate })
     });

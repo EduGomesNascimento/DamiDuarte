@@ -7,9 +7,10 @@ const blank = {
   userId: "",
   startAt: "",
   endAt: "",
-  status: "BOOKED",
+  status: "SCHEDULED",
   value: 0,
-  notesPrivate: ""
+  notesPrivate: "",
+  notesPublic: ""
 };
 
 const OwnerAgenda = () => {
@@ -17,7 +18,7 @@ const OwnerAgenda = () => {
   const [form, setForm] = useState<any>(blank);
 
   const load = () => {
-    apiFetch<any[]>("/owner/agenda").then(setItems).catch(() => setItems([]));
+    apiFetch<any[]>("/owner/appointments").then(setItems).catch(() => setItems([]));
   };
 
   useEffect(() => {
@@ -26,12 +27,12 @@ const OwnerAgenda = () => {
 
   const handleSubmit = async () => {
     if (form.appointmentId) {
-      await apiFetch(`/owner/agenda/${form.appointmentId}`, {
+      await apiFetch(`/owner/appointments/${form.appointmentId}`, {
         method: "PUT",
         body: JSON.stringify(form)
       });
     } else {
-      await apiFetch(`/owner/agenda`, {
+      await apiFetch(`/owner/appointments`, {
         method: "POST",
         body: JSON.stringify(form)
       });
@@ -45,7 +46,7 @@ const OwnerAgenda = () => {
   };
 
   const handleDelete = async (id: string) => {
-    await apiFetch(`/owner/agenda/${id}`, { method: "DELETE" });
+    await apiFetch(`/owner/appointments/${id}`, { method: "DELETE" });
     load();
   };
 
@@ -69,11 +70,10 @@ const OwnerAgenda = () => {
           <label>
             Status
             <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-              <option value="BOOKED">BOOKED</option>
+              <option value="SCHEDULED">SCHEDULED</option>
+              <option value="CONFIRMED">CONFIRMED</option>
+              <option value="CANCELED">CANCELED</option>
               <option value="DONE">DONE</option>
-              <option value="CANCELLED">CANCELLED</option>
-              <option value="NO_SHOW">NO_SHOW</option>
-              <option value="RESCHEDULED">RESCHEDULED</option>
             </select>
           </label>
           <label>
@@ -83,6 +83,10 @@ const OwnerAgenda = () => {
           <label>
             Notas privadas
             <input value={form.notesPrivate} onChange={(e) => setForm({ ...form, notesPrivate: e.target.value })} />
+          </label>
+          <label>
+            Notas cliente
+            <input value={form.notesPublic} onChange={(e) => setForm({ ...form, notesPublic: e.target.value })} />
           </label>
         </div>
         <button onClick={handleSubmit}>{form.appointmentId ? "Atualizar" : "Criar"}</button>
@@ -99,7 +103,7 @@ const OwnerAgenda = () => {
           {items.map((item) => (
             <div key={item.appointmentId} className="card">
               <strong>{new Date(item.startAt).toLocaleString("pt-BR")}</strong>
-              <div>{item.userId}</div>
+              <div>{item.clientName || item.userId}</div>
               <div>{formatCurrency(item.value)}</div>
               <div>Status: {item.status}</div>
               <div style={{ display: "flex", gap: "0.5rem" }}>

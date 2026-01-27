@@ -12,6 +12,7 @@ import OwnerAgenda from "./pages/OwnerAgenda";
 import OwnerClients from "./pages/OwnerClients";
 import OwnerNews from "./pages/OwnerNews";
 import OwnerProducts from "./pages/OwnerProducts";
+import OwnerHistory from "./pages/OwnerHistory";
 import { getSession } from "./lib/session";
 import { AppShell } from "./components/AppShell";
 import { OwnerShell } from "./components/OwnerShell";
@@ -126,6 +127,16 @@ const App = () => {
             <RequireRole role="OWNER" sessionRole={session?.role}>
               <OwnerShell>
                 <OwnerProducts />
+              </OwnerShell>
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/owner/historico"
+          element={
+            <RequireRole role="OWNER" sessionRole={session?.role}>
+              <OwnerShell>
+                <OwnerHistory />
               </OwnerShell>
             </RequireRole>
           }

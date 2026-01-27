@@ -2,21 +2,27 @@ import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../lib/api";
 import { config } from "../lib/config";
 import { formatCurrency } from "../lib/format";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [agenda, setAgenda] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
+  const [total30, setTotal30] = useState(0);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [agendaData, historyData] = await Promise.all([
-          apiFetch<any[]>("/me/agenda"),
-          apiFetch<any[]>("/me/history?days=30")
+        const [agendaData, historyData, newsData] = await Promise.all([
+          apiFetch<any[]>("/appointments?upcoming=1"),
+          apiFetch<{ items: any[]; total: number }>("/history?days=30"),
+          apiFetch<any[]>("/announcements?published=1")
         ]);
         setAgenda(agendaData);
-        setHistory(historyData);
+        setHistory(historyData.items || []);
+        setTotal30(historyData.total || 0);
+        setAnnouncements(newsData.slice(0, 3));
       } catch (err) {
         setError(err instanceof Error ? err.message : "Erro ao carregar");
       }
@@ -24,9 +30,10 @@ const Home = () => {
     load();
   }, []);
 
-  const total30 = useMemo(() => {
+  const totalHistory = useMemo(() => {
+    if (total30) return total30;
     return history.reduce((sum, item) => sum + Number(item.value || 0), 0);
-  }, [history]);
+  }, [history, total30]);
 
   return (
     <section className="grid">
@@ -38,6 +45,7 @@ const Home = () => {
             <div key={item.appointmentId} className="card">
               <strong>{new Date(item.startAt).toLocaleString("pt-BR")}</strong>
               <div>Status: {item.status}</div>
+              {item.notesPublic && <p>{item.notesPublic}</p>}
             </div>
           ))}
         </div>
@@ -56,16 +64,36 @@ const Home = () => {
         </div>
         <div className="card">
           <h3>Total 30 dias</h3>
-          <div className="kpi">{formatCurrency(total30)}</div>
+          <div className="kpi">{formatCurrency(totalHistory)}</div>
           <p style={{ color: "var(--muted)" }}>Soma dos atendimentos concluidos.</p>
         </div>
       </div>
       <div className="card">
-        <a href={config.whatsappLink} target="_blank" rel="noreferrer">
-          <button>Falar no WhatsApp</button>
-        </a>
+        <h3>Novidades</h3>
+        <div className="list">
+          {announcements.length === 0 && <p>Nenhum anuncio publicado.</p>}
+          {announcements.map((item) => (
+            <div key={item.announcementId}>
+              <strong>{item.title}</strong>
+              <p>{item.content}</p>
+            </div>
+          ))}
+        </div>
+        <Link to="/novidades">Ver todas</Link>
       </div>
-      {error && <p>{error}</p>}
+      <div className="grid grid-2">
+        <div className="card">
+          <a href={config.whatsappLink} target="_blank" rel="noreferrer">
+            <button>Falar no WhatsApp</button>
+          </a>
+        </div>
+        <div className="card">
+          <h3>Catalogo</h3>
+          <p>Confira produtos e novidades exclusivas.</p>
+          <Link to="/catalogo">Abrir catalogo</Link>
+        </div>
+      </div>
+      {error && <p className="error-text">{error}</p>}
     </section>
   );
 };

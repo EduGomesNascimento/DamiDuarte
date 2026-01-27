@@ -41,6 +41,9 @@ export const OwnerShell = ({ children }: { children: React.ReactNode }) => {
         <NavLink to="/owner/produtos" className={linkClass}>
           Produtos
         </NavLink>
+        <NavLink to="/owner/historico" className={linkClass}>
+          Historico
+        </NavLink>
       </nav>
       {children}
     </main>

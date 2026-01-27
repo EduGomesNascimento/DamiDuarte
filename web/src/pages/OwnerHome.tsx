@@ -20,7 +20,7 @@ const OwnerHome = () => {
       const [weekData, monthData, upcomingData] = await Promise.all([
         apiFetch<{ total: number }>("/owner/stats/week"),
         apiFetch<{ total: number }>("/owner/stats/month"),
-        apiFetch<any[]>("/owner/agenda?upcoming=1")
+        apiFetch<any[]>("/owner/appointments?upcoming=1")
       ]);
       setWeek(weekData.total || 0);
       setMonth(monthData.total || 0);
@@ -60,7 +60,7 @@ const OwnerHome = () => {
           {upcoming.length === 0 && (
             <div className="card soft">
               <strong>Nenhum horario futuro</strong>
-              <p>Crie um agendamento para começar a preencher a agenda.</p>
+              <p>Crie um agendamento para comecar a preencher a agenda.</p>
             </div>
           )}
           {upcoming.map((item) => (

@@ -5,7 +5,9 @@ const blank = {
   announcementId: "",
   title: "",
   content: "",
-  isPublished: false
+  isPublished: false,
+  publishAt: "",
+  expireAt: ""
 };
 
 const OwnerNews = () => {
@@ -65,6 +67,14 @@ const OwnerNews = () => {
               <option value="false">Nao</option>
             </select>
           </label>
+          <label>
+            Publicar em
+            <input type="datetime-local" value={form.publishAt} onChange={(e) => setForm({ ...form, publishAt: e.target.value })} />
+          </label>
+          <label>
+            Expirar em
+            <input type="datetime-local" value={form.expireAt} onChange={(e) => setForm({ ...form, expireAt: e.target.value })} />
+          </label>
         </div>
         <button onClick={handleSubmit}>{form.announcementId ? "Atualizar" : "Criar"}</button>
       </div>
@@ -81,6 +91,7 @@ const OwnerNews = () => {
             <div key={item.announcementId} className="card">
               <strong>{item.title}</strong>
               <p>{item.content}</p>
+              <div>Publicado: {String(item.isPublished)}</div>
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <button className="secondary" onClick={() => handleEdit(item)}>
                   Editar

@@ -28,13 +28,17 @@ const HEADERS = {
     "status",
     "value",
     "notesPrivate",
-    "updatedAt"
+    "notesPublic",
+    "updatedAt",
+    "createdBy"
   ],
   Announcements: [
     "announcementId",
     "title",
     "content",
     "isPublished",
+    "publishAt",
+    "expireAt",
     "createdAt",
     "updatedAt"
   ],
@@ -61,133 +65,156 @@ function doPost(e) {
   return handleRequest(e, method);
 }
 
+function doOptions(e) {
+  const output = ContentService.createTextOutput("");
+  return withCors(output, 204, e);
+}
+
 function handleRequest(e, method) {
   try {
+    bootstrapSheets();
     const path = (e && e.pathInfo) || "";
     const payload = parseBody(e);
     const token = getToken(e, payload);
-
     const route = path.split("/").filter(Boolean);
 
     if (route[0] === "auth" && route[1] === "me" && method === "POST") {
-      return jsonResponse(authMe(payload));
-    }
-
-    if (route[0] === "announcements" && method === "GET") {
-      return jsonResponse(listAnnouncements(e));
-    }
-
-    if (route[0] === "products" && method === "GET") {
-      return jsonResponse(listProducts(e));
+      return jsonResponse(authMe(payload), e);
     }
 
     if (route[0] === "me") {
       const auth = requireAuth(token);
-      if (route[1] === "agenda" && method === "GET") {
-        return jsonResponse(listAppointmentsForUser(auth.userId, true));
+      if (route.length === 1 && method === "GET") {
+        return jsonResponse(getMe(auth), e);
       }
-      if (route[1] === "history" && method === "GET") {
-        const days = Number((e.parameter && e.parameter.days) || 30);
-        return jsonResponse(listHistoryForUser(auth.userId, days));
+      if (route.length === 1 && method === "PUT") {
+        return jsonResponse(updateUserProfile(auth.userId, payload), e);
       }
       if (route[1] === "profile") {
         if (method === "GET") {
-          return jsonResponse(getUser(auth.userId));
+          return jsonResponse(getUser(auth.userId), e);
         }
         if (method === "PUT") {
-          return jsonResponse(updateUserProfile(auth.userId, payload));
+          return jsonResponse(updateUserProfile(auth.userId, payload), e);
         }
       }
+      if ((route[1] === "agenda" || route[1] === "appointments") && method === "GET") {
+        const upcoming = (e.parameter && e.parameter.upcoming) === "1";
+        return jsonResponse(listAppointmentsForUser(auth.userId, upcoming), e);
+      }
+      if (route[1] === "history" && method === "GET") {
+        const days = Number((e.parameter && e.parameter.days) || 30);
+        return jsonResponse(listHistoryForUser(auth.userId, days), e);
+      }
+    }
+
+    if (route[0] === "appointments" && method === "GET") {
+      const auth = requireAuth(token);
+      const upcoming = (e.parameter && e.parameter.upcoming) === "1";
+      return jsonResponse(listAppointmentsForUser(auth.userId, upcoming), e);
+    }
+
+    if (route[0] === "history" && method === "GET") {
+      const auth = requireAuth(token);
+      const days = Number((e.parameter && e.parameter.days) || 30);
+      return jsonResponse(listHistoryForUser(auth.userId, days), e);
+    }
+
+    if (route[0] === "announcements" && method === "GET") {
+      return jsonResponse(listAnnouncements(e, true), e);
+    }
+
+    if (route[0] === "products" && method === "GET") {
+      return jsonResponse(listProducts(e, true), e);
     }
 
     if (route[0] === "owner") {
       const auth = requireAuth(token);
       if (auth.role !== "OWNER") {
-        return jsonError("Nao autorizado", 403);
+        return jsonError("Nao autorizado", 403, e);
       }
 
-      if (route[1] === "agenda") {
+      if (route[1] === "users" || route[1] === "clients") {
         if (method === "GET") {
-          const upcoming = (e.parameter && e.parameter.upcoming) === "1";
-          return jsonResponse(listAppointmentsAll(upcoming));
+          return jsonResponse(listUsers(), e);
         }
         if (method === "POST") {
-          return jsonResponse(createAppointment(payload, auth));
+          return jsonResponse(createUser(payload, auth), e);
         }
         if (route[2] && method === "PUT") {
-          return jsonResponse(updateAppointment(route[2], payload, auth));
+          return jsonResponse(updateUser(route[2], payload, auth), e);
         }
         if (route[2] && method === "DELETE") {
-          return jsonResponse(deleteAppointment(route[2], auth));
+          return jsonResponse(softDeleteUser(route[2], auth), e);
         }
       }
 
-      if (route[1] === "clients") {
+      if (route[1] === "appointments" || route[1] === "agenda") {
         if (method === "GET") {
-          return jsonResponse(listUsers());
+          return jsonResponse(listAppointmentsAllWithFilters(e), e);
         }
         if (method === "POST") {
-          return jsonResponse(createUser(payload, auth));
+          return jsonResponse(createAppointment(payload, auth), e);
         }
         if (route[2] && method === "PUT") {
-          return jsonResponse(updateUser(route[2], payload, auth));
+          return jsonResponse(updateAppointment(route[2], payload, auth), e);
         }
         if (route[2] && method === "DELETE") {
-          return jsonResponse(deleteUser(route[2], auth));
+          return jsonResponse(deleteAppointment(route[2], auth), e);
         }
       }
 
       if (route[1] === "announcements") {
         if (method === "GET") {
-          return jsonResponse(listAnnouncements({ parameter: {} }));
+          return jsonResponse(listAnnouncements({ parameter: {} }, false), e);
         }
         if (method === "POST") {
-          return jsonResponse(createAnnouncement(payload, auth));
+          return jsonResponse(createAnnouncement(payload, auth), e);
         }
         if (route[2] && method === "PUT") {
-          return jsonResponse(updateAnnouncement(route[2], payload, auth));
+          return jsonResponse(updateAnnouncement(route[2], payload, auth), e);
         }
         if (route[2] && method === "DELETE") {
-          return jsonResponse(deleteAnnouncement(route[2], auth));
+          return jsonResponse(deleteAnnouncement(route[2], auth), e);
         }
       }
 
       if (route[1] === "products") {
         if (method === "GET") {
-          return jsonResponse(listProducts({ parameter: {} }));
+          return jsonResponse(listProducts({ parameter: {} }, false), e);
         }
         if (method === "POST") {
-          return jsonResponse(createProduct(payload, auth));
+          return jsonResponse(createProduct(payload, auth), e);
         }
         if (route[2] && method === "PUT") {
-          return jsonResponse(updateProduct(route[2], payload, auth));
+          return jsonResponse(updateProduct(route[2], payload, auth), e);
         }
         if (route[2] && method === "DELETE") {
-          return jsonResponse(deleteProduct(route[2], auth));
+          return jsonResponse(deleteProduct(route[2], auth), e);
         }
       }
 
       if (route[1] === "history" && method === "GET") {
         const days = Number((e.parameter && e.parameter.days) || 30);
-        return jsonResponse(listHistoryAll(days));
+        return jsonResponse(listHistoryAll(days), e);
       }
 
       if (route[1] === "stats" && route[2] === "week" && method === "GET") {
-        return jsonResponse({ total: sumForPeriod(7) });
+        return jsonResponse({ total: sumForWeek() }, e);
       }
 
       if (route[1] === "stats" && route[2] === "month" && method === "GET") {
-        return jsonResponse({ total: sumForPeriod(30) });
+        return jsonResponse({ total: sumForMonth() }, e);
       }
 
       if (route[1] === "push" && method === "POST") {
-        return jsonResponse(sendPush(payload, auth));
+        return jsonResponse(sendPush(payload, auth), e);
       }
     }
 
-    return jsonError("Rota nao encontrada", 404);
+    return jsonError("Rota nao encontrada", 404, e);
   } catch (err) {
-    return jsonError(err && err.message ? err.message : "Erro interno", 500);
+    return jsonError(err && err.message ? err.message : "Erro interno", 500, e);
   }
 }
 
@@ -212,20 +239,21 @@ function getToken(e, payload) {
   return null;
 }
 
-function jsonResponse(data, status) {
+function jsonResponse(data, e, status) {
   const output = ContentService.createTextOutput(JSON.stringify(data));
   output.setMimeType(ContentService.MimeType.JSON);
-  return withCors(output, status || 200);
+  return withCors(output, status || 200, e);
 }
 
-function jsonError(message, status) {
-  return jsonResponse({ error: message }, status || 400);
+function jsonError(message, status, e) {
+  return jsonResponse({ error: message }, e, status || 400);
 }
 
-function withCors(output, status) {
+function withCors(output, status, e) {
   if (output.setHeader) {
-    output.setHeader("Access-Control-Allow-Origin", "*");
-    output.setHeader("Access-Control-Allow-Methods", "GET,POST");
+    const origin = getOrigin(e);
+    output.setHeader("Access-Control-Allow-Origin", origin);
+    output.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
     output.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
     output.setHeader("Access-Control-Max-Age", "3600");
   }
@@ -235,12 +263,37 @@ function withCors(output, status) {
   return output;
 }
 
+function getOrigin(e) {
+  const configured = PropertiesService.getScriptProperties().getProperty("WEB_ORIGIN") || "";
+  const allowList = configured
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item);
+  const origin = (e && e.headers && (e.headers.Origin || e.headers.origin)) || "";
+  if (!allowList.length) return origin || "*";
+  if (allowList.indexOf(origin) >= 0) return origin;
+  return allowList[0];
+}
+
+function bootstrapSheets() {
+  getSheet(SHEETS.USERS);
+  getSheet(SHEETS.APPOINTMENTS);
+  getSheet(SHEETS.ANNOUNCEMENTS);
+  getSheet(SHEETS.PRODUCTS);
+  getSheet(SHEETS.AUDIT);
+}
+
 function getSheet(name) {
   const ss = SpreadsheetApp.openById(getSpreadsheetId());
   let sheet = ss.getSheetByName(name);
   if (!sheet) {
     sheet = ss.insertSheet(name);
-    sheet.getRange(1, 1, 1, HEADERS[name].length).setValues([HEADERS[name]]);
+  }
+  const header = HEADERS[name];
+  const current = sheet.getRange(1, 1, 1, header.length).getValues()[0];
+  const isEmpty = current.every((cell) => !cell);
+  if (isEmpty) {
+    sheet.getRange(1, 1, 1, header.length).setValues([header]);
   }
   return sheet;
 }
@@ -253,6 +306,10 @@ function getSpreadsheetId() {
 
 function getOwnerEmail() {
   return PropertiesService.getScriptProperties().getProperty("OWNER_EMAIL") || "";
+}
+
+function getGoogleClientId() {
+  return PropertiesService.getScriptProperties().getProperty("GOOGLE_CLIENT_ID") || "";
 }
 
 function authMe(payload) {
@@ -270,13 +327,7 @@ function authMe(payload) {
   });
   return {
     token: payload.idToken,
-    user: {
-      userId: user.userId,
-      email: user.email,
-      name: user.name,
-      nicknamePublic: user.nicknamePublic,
-      role: user.role
-    }
+    user: sanitizeUserForRole(user, role)
   };
 }
 
@@ -287,7 +338,12 @@ function verifyIdToken(idToken) {
   if (response.getResponseCode() !== 200) {
     throw new Error("Token invalido");
   }
-  return JSON.parse(response.getContentText());
+  const info = JSON.parse(response.getContentText());
+  const clientId = getGoogleClientId();
+  if (clientId && info.aud && info.aud !== clientId) {
+    throw new Error("Token nao pertence ao cliente configurado");
+  }
+  return info;
 }
 
 function requireAuth(token) {
@@ -296,6 +352,27 @@ function requireAuth(token) {
   const email = info.email;
   const role = email === getOwnerEmail() ? "OWNER" : "CLIENT";
   return { userId: info.sub, email: email, role: role };
+}
+
+function getMe(auth) {
+  const user = getUserByIdOrEmail(auth.userId, auth.email, auth.role);
+  return {
+    token: null,
+    user: sanitizeUserForRole(user, auth.role)
+  };
+}
+
+function sanitizeUserForRole(user, role) {
+  if (role === "OWNER") return user;
+  return {
+    userId: user.userId,
+    role: user.role,
+    email: user.email,
+    name: user.name,
+    nicknamePublic: user.nicknamePublic,
+    birthDate: user.birthDate,
+    active: user.active
+  };
 }
 
 function upsertUser(data) {
@@ -327,6 +404,24 @@ function upsertUser(data) {
   ];
   sheet.appendRow(row);
   return rowToObject(row, HEADERS.Users);
+}
+
+function getUserByIdOrEmail(userId, email, role) {
+  const sheet = getSheet(SHEETS.USERS);
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0] === userId || (email && rows[i][2] === email)) {
+      return rowToObject(rows[i], HEADERS.Users);
+    }
+  }
+  const created = upsertUser({
+    userId: userId,
+    role: role,
+    email: email,
+    name: email || "",
+    nicknamePublic: email ? email.split("@")[0] : ""
+  });
+  return created;
 }
 
 function getUser(userId) {
@@ -403,50 +498,73 @@ function updateUser(userId, payload, auth) {
   throw new Error("Usuario nao encontrado");
 }
 
-function deleteUser(userId, auth) {
-  const sheet = getSheet(SHEETS.USERS);
-  const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) {
-    if (rows[i][0] === userId) {
-      sheet.deleteRow(i + 1);
-      logAudit(auth.email, "DELETE_USER", userId, {});
-      return { ok: true };
-    }
-  }
-  throw new Error("Usuario nao encontrado");
+function softDeleteUser(userId, auth) {
+  return updateUser(userId, { active: false }, auth);
 }
 
 function listAppointmentsForUser(userId, upcomingOnly) {
-  const all = listAppointmentsAll(false);
+  const all = listAppointmentsAll();
   const now = new Date();
   return all
     .filter((item) => item.userId === userId)
-    .filter((item) => {
-      if (!upcomingOnly) return true;
-      return new Date(item.startAt) >= now;
-    })
+    .filter((item) => (upcomingOnly ? new Date(item.startAt) >= now : true))
     .sort((a, b) => new Date(a.startAt) - new Date(b.startAt));
 }
 
 function listHistoryForUser(userId, days) {
-  return listHistoryAll(days).filter((item) => item.userId === userId);
+  const items = listHistoryAll(days).items.filter((item) => item.userId === userId);
+  const total = items
+    .filter((item) => item.status === "DONE")
+    .reduce((sum, item) => sum + Number(item.value || 0), 0);
+  return { items: items, total: total };
 }
 
 function listHistoryAll(days) {
-  const all = listAppointmentsAll(false);
+  const all = listAppointmentsAll();
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - days);
-  return all.filter((item) => new Date(item.startAt) >= cutoff);
+  const items = all.filter((item) => new Date(item.startAt) >= cutoff);
+  const total = items
+    .filter((item) => item.status === "DONE")
+    .reduce((sum, item) => sum + Number(item.value || 0), 0);
+  const byClient = groupTotalsByClient(items);
+  return { items: items, total: total, byClient: byClient };
 }
 
-function listAppointmentsAll(upcomingOnly) {
+function listAppointmentsAll() {
   const sheet = getSheet(SHEETS.APPOINTMENTS);
   const rows = sheet.getDataRange().getValues();
-  const now = new Date();
-  return rows
-    .slice(1)
-    .map((row) => rowToObject(row, HEADERS.Appointments))
-    .filter((item) => (upcomingOnly ? new Date(item.startAt) >= now : true));
+  return rows.slice(1).map((row) => rowToObject(row, HEADERS.Appointments));
+}
+
+function listAppointmentsAllWithFilters(e) {
+  const params = (e && e.parameter) || {};
+  const userId = params.userId || "";
+  const status = params.status || "";
+  const dateFrom = params.dateFrom ? new Date(params.dateFrom) : null;
+  const dateTo = params.dateTo ? new Date(params.dateTo) : null;
+  const upcoming = params.upcoming === "1";
+
+  let items = listAppointmentsAll();
+  if (userId) {
+    items = items.filter((item) => item.userId === userId);
+  }
+  if (status) {
+    const statuses = status.split(",").map((s) => s.trim());
+    items = items.filter((item) => statuses.indexOf(item.status) >= 0);
+  }
+  if (dateFrom) {
+    items = items.filter((item) => new Date(item.startAt) >= dateFrom);
+  }
+  if (dateTo) {
+    items = items.filter((item) => new Date(item.startAt) <= dateTo);
+  }
+  if (upcoming) {
+    const now = new Date();
+    items = items.filter((item) => new Date(item.startAt) >= now);
+  }
+
+  return attachClientNames(items);
 }
 
 function createAppointment(payload, auth) {
@@ -456,10 +574,12 @@ function createAppointment(payload, auth) {
     payload.userId || "",
     payload.startAt || "",
     payload.endAt || "",
-    payload.status || "BOOKED",
+    payload.status || "SCHEDULED",
     payload.value || 0,
     payload.notesPrivate || "",
-    new Date().toISOString()
+    payload.notesPublic || "",
+    new Date().toISOString(),
+    auth.email || ""
   ];
   getSheet(SHEETS.APPOINTMENTS).appendRow(row);
   logAudit(auth.email, "CREATE_APPOINTMENT", appointmentId, payload);
@@ -477,7 +597,8 @@ function updateAppointment(appointmentId, payload, auth) {
       rows[i][4] = payload.status || rows[i][4];
       rows[i][5] = payload.value !== undefined ? payload.value : rows[i][5];
       rows[i][6] = payload.notesPrivate || rows[i][6];
-      rows[i][7] = new Date().toISOString();
+      rows[i][7] = payload.notesPublic || rows[i][7];
+      rows[i][8] = new Date().toISOString();
       sheet.getRange(i + 1, 1, 1, HEADERS.Appointments.length).setValues([rows[i]]);
       logAudit(auth.email, "UPDATE_APPOINTMENT", appointmentId, payload);
       return rowToObject(rows[i], HEADERS.Appointments);
@@ -499,14 +620,21 @@ function deleteAppointment(appointmentId, auth) {
   throw new Error("Agendamento nao encontrado");
 }
 
-function listAnnouncements(e) {
-  const published = e.parameter && e.parameter.published === "1";
+function listAnnouncements(e, onlyPublished) {
   const sheet = getSheet(SHEETS.ANNOUNCEMENTS);
   const rows = sheet.getDataRange().getValues();
+  const now = new Date();
   return rows
     .slice(1)
     .map((row) => rowToObject(row, HEADERS.Announcements))
-    .filter((item) => (published ? item.isPublished === true || item.isPublished === "true" : true));
+    .filter((item) => {
+      if (!onlyPublished) return true;
+      const isPublished = item.isPublished === true || item.isPublished === "true";
+      if (!isPublished) return false;
+      if (item.publishAt && new Date(item.publishAt) > now) return false;
+      if (item.expireAt && new Date(item.expireAt) < now) return false;
+      return true;
+    });
 }
 
 function createAnnouncement(payload, auth) {
@@ -516,6 +644,8 @@ function createAnnouncement(payload, auth) {
     payload.title || "",
     payload.content || "",
     payload.isPublished === true,
+    payload.publishAt || "",
+    payload.expireAt || "",
     new Date().toISOString(),
     new Date().toISOString()
   ];
@@ -532,7 +662,9 @@ function updateAnnouncement(id, payload, auth) {
       rows[i][1] = payload.title || rows[i][1];
       rows[i][2] = payload.content || rows[i][2];
       rows[i][3] = payload.isPublished !== undefined ? payload.isPublished : rows[i][3];
-      rows[i][5] = new Date().toISOString();
+      rows[i][4] = payload.publishAt !== undefined ? payload.publishAt : rows[i][4];
+      rows[i][5] = payload.expireAt !== undefined ? payload.expireAt : rows[i][5];
+      rows[i][7] = new Date().toISOString();
       sheet.getRange(i + 1, 1, 1, HEADERS.Announcements.length).setValues([rows[i]]);
       logAudit(auth.email, "UPDATE_ANNOUNCEMENT", id, payload);
       return rowToObject(rows[i], HEADERS.Announcements);
@@ -554,14 +686,16 @@ function deleteAnnouncement(id, auth) {
   throw new Error("Anuncio nao encontrado");
 }
 
-function listProducts(e) {
-  const active = e.parameter && e.parameter.active === "1";
+function listProducts(e, onlyActive) {
   const sheet = getSheet(SHEETS.PRODUCTS);
   const rows = sheet.getDataRange().getValues();
   return rows
     .slice(1)
     .map((row) => rowToObject(row, HEADERS.Products))
-    .filter((item) => (active ? item.isActive === true || item.isActive === "true" : true));
+    .filter((item) => {
+      if (!onlyActive) return true;
+      return item.isActive === true || item.isActive === "true";
+    });
 }
 
 function createProduct(payload, auth) {
@@ -613,14 +747,51 @@ function deleteProduct(id, auth) {
   throw new Error("Produto nao encontrado");
 }
 
-function sumForPeriod(days) {
-  const all = listAppointmentsAll(false);
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - days);
+function sumForWeek() {
+  const now = new Date();
+  const start = new Date(now);
+  start.setDate(now.getDate() - 7);
+  return sumForRange(start, now);
+}
+
+function sumForMonth() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  return sumForRange(start, now);
+}
+
+function sumForRange(start, end) {
+  const all = listAppointmentsAll();
   return all
-    .filter((item) => new Date(item.startAt) >= cutoff)
+    .filter((item) => new Date(item.startAt) >= start && new Date(item.startAt) <= end)
     .filter((item) => item.status === "DONE")
     .reduce((sum, item) => sum + Number(item.value || 0), 0);
+}
+
+function groupTotalsByClient(items) {
+  const users = listUsers();
+  const map = {};
+  users.forEach((u) => {
+    map[u.userId] = u.nicknamePublic || u.name || u.email || u.userId;
+  });
+  const totals = {};
+  items.forEach((item) => {
+    const key = map[item.userId] || item.userId;
+    totals[key] = (totals[key] || 0) + Number(item.value || 0);
+  });
+  return totals;
+}
+
+function attachClientNames(items) {
+  const users = listUsers();
+  const map = {};
+  users.forEach((u) => {
+    map[u.userId] = u.nicknamePublic || u.name || u.email || u.userId;
+  });
+  return items.map((item) => {
+    item.clientName = map[item.userId] || item.userId;
+    return item;
+  });
 }
 
 function sendPush(payload, auth) {

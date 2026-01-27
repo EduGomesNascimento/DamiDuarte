@@ -1,5 +1,5 @@
 import { config } from "./config";
-import { getSession } from "./session";
+import { clearSession, getSession } from "./session";
 
 const appendTokenToUrl = (url: string, token?: string) => {
   if (!token) return url;
@@ -7,9 +7,20 @@ const appendTokenToUrl = (url: string, token?: string) => {
   return `${url}${joiner}token=${encodeURIComponent(token)}`;
 };
 
+const withTokenInBody = (body: BodyInit | null | undefined, token?: string) => {
+  if (!token || !body || typeof body !== "string") return body;
+  try {
+    const data = JSON.parse(body);
+    return JSON.stringify({ ...data, token });
+  } catch {
+    return body;
+  }
+};
+
 export const apiFetch = async <T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  attempt = 0
 ): Promise<T> => {
   const session = getSession();
   const headers = new Headers(options.headers || {});
@@ -20,13 +31,8 @@ export const apiFetch = async <T>(
 
   if (method === "GET") {
     url = appendTokenToUrl(url, session?.token);
-  } else if (session?.token && body && typeof body === "string") {
-    try {
-      const data = JSON.parse(body);
-      body = JSON.stringify({ ...data, token: session.token });
-    } catch {
-      // ignore parse errors
-    }
+  } else {
+    body = withTokenInBody(body, session?.token);
   }
 
   if (method === "PUT" || method === "DELETE") {
@@ -45,7 +51,18 @@ export const apiFetch = async <T>(
       body
     });
   } catch {
+    if (attempt < 1) {
+      return apiFetch(path, options, attempt + 1);
+    }
     throw new Error("API indisponivel. Confirme VITE_API_BASE e o deploy do Apps Script.");
+  }
+
+  if (response.status === 401) {
+    clearSession();
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+    throw new Error("Sessao expirada. Faca login novamente.");
   }
 
   if (!response.ok) {
