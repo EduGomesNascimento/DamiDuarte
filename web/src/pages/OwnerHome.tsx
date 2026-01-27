@@ -6,6 +6,7 @@ const OwnerHome = () => {
   const [week, setWeek] = useState(0);
   const [month, setMonth] = useState(0);
   const [upcoming, setUpcoming] = useState<any[]>([]);
+  const [birthdays, setBirthdays] = useState<any[]>([]);
   const [push, setPush] = useState({
     target: "all",
     userId: "",
@@ -17,17 +18,23 @@ const OwnerHome = () => {
 
   useEffect(() => {
     const load = async () => {
-      const [weekData, monthData, upcomingData] = await Promise.all([
+      const [weekData, monthData, upcomingData, birthdayData] = await Promise.all([
         apiFetch<{ total: number }>("/owner/stats/week"),
         apiFetch<{ total: number }>("/owner/stats/month"),
-        apiFetch<any[]>("/owner/appointments?upcoming=1")
+        apiFetch<any[]>("/owner/appointments?upcoming=1"),
+        apiFetch<any[]>("/owner/reminders?days=30")
       ]);
       setWeek(weekData.total || 0);
       setMonth(monthData.total || 0);
       setUpcoming(upcomingData);
+      setBirthdays(birthdayData);
     };
     load().catch(() => null);
   }, []);
+
+  const applyTemplate = (title: string, message: string) => {
+    setPush({ ...push, title, message });
+  };
 
   const handlePush = async () => {
     setPushStatus(null);
@@ -74,6 +81,35 @@ const OwnerHome = () => {
         </div>
       </div>
       <div className="card">
+        <h3>Lembretes de aniversario</h3>
+        <div className="list">
+          {birthdays.length === 0 && (
+            <div className="card soft">
+              <strong>Nenhum aniversario proximo</strong>
+              <p>Os aniversarios dos proximos 30 dias aparecem aqui.</p>
+            </div>
+          )}
+          {birthdays.map((item) => (
+            <div key={item.userId} className="card">
+              <strong>{item.name || item.email}</strong>
+              <div>Data: {item.nextDate}</div>
+              <div>Em {item.daysUntil} dias</div>
+              <button
+                className="secondary"
+                onClick={() =>
+                  applyTemplate(
+                    "Feliz aniversario!",
+                    `Oi ${item.name || ""}! Feliz aniversario! Gostaria de marcar um horario especial?`
+                  )
+                }
+              >
+                Preparar mensagem
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="card">
         <h3>Enviar push</h3>
         <div className="grid grid-2">
           <label>
@@ -108,6 +144,10 @@ const OwnerHome = () => {
             Mensagem
             <input value={push.message} onChange={(e) => setPush({ ...push, message: e.target.value })} />
           </label>
+        </div>
+        <div className="list">
+          <button className="secondary" onClick={() => applyTemplate("Hora de renovar o corte", "Oi! Seu prazo para renovar o corte esta chegando. Quer agendar?")}>Use lembrete de corte</button>
+          <button className="secondary" onClick={() => applyTemplate("Manutencao do cabelo", "Oi! Que tal manter seu cabelo em dia? Posso sugerir um horario.")}>Use lembrete de manutencao</button>
         </div>
         <button onClick={handlePush}>Enviar</button>
         {pushStatus && <p>{pushStatus}</p>}

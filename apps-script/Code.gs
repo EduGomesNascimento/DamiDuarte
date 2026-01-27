@@ -207,6 +207,11 @@ function handleRequest(e, method) {
         return jsonResponse({ total: sumForMonth() }, e);
       }
 
+      if (route[1] === "reminders" && method === "GET") {
+        const days = Number((e.parameter && e.parameter.days) || 30);
+        return jsonResponse(listBirthdayReminders(days), e);
+      }
+
       if (route[1] === "push" && method === "POST") {
         return jsonResponse(sendPush(payload, auth), e);
       }
@@ -860,4 +865,33 @@ function rowToObject(row, headers) {
     obj[header] = row[idx];
   });
   return obj;
+}
+function listBirthdayReminders(days) {
+  const sheet = getSheet(SHEETS.USERS);
+  const rows = sheet.getDataRange().getValues();
+  const now = new Date();
+  const results = [];
+  for (let i = 1; i < rows.length; i++) {
+    const row = rowToObject(rows[i], HEADERS.Users);
+    if (!row.birthDate) continue;
+    const birth = new Date(row.birthDate);
+    if (isNaN(birth.getTime())) continue;
+    const next = new Date(now.getFullYear(), birth.getMonth(), birth.getDate());
+    if (next < now) {
+      next.setFullYear(next.getFullYear() + 1);
+    }
+    const diffMs = next - now;
+    const diffDays = Math.ceil(diffMs / 86400000);
+    if (diffDays >= 0 && diffDays <= days) {
+      results.push({
+        userId: row.userId,
+        name: row.nicknamePublic || row.name || row.email,
+        email: row.email,
+        nextDate: next.toISOString().slice(0, 10),
+        daysUntil: diffDays
+      });
+    }
+  }
+  results.sort((a, b) => a.daysUntil - b.daysUntil);
+  return results;
 }

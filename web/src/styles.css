@@ -1,19 +1,19 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Quicksand:wght@400;600;700&display=swap");
 
 :root {
   color-scheme: light;
-  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-family: "Quicksand", "Segoe UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  --bg: #f0e9df;
-  --bg-soft: #fbf7f0;
-  --ink: #2d2a26;
-  --accent: #cc4b2c;
-  --accent-2: #2b6f6b;
-  --muted: #6d675f;
+  --bg: #f5e9e6;
+  --bg-soft: #fff7f5;
+  --ink: #3b2e2b;
+  --accent: #c9897a;
+  --accent-2: #b36b5e;
+  --muted: #7a6b67;
   --card: #ffffff;
-  --border: rgba(45, 42, 38, 0.12);
-  --shadow: 0 24px 48px rgba(45, 42, 38, 0.14);
+  --border: rgba(122, 107, 103, 0.18);
+  --shadow: 0 24px 48px rgba(120, 83, 76, 0.18);
 }
 
 * {
@@ -23,9 +23,9 @@
 body {
   margin: 0;
   background:
-    radial-gradient(circle at 8% 8%, rgba(204, 75, 44, 0.18), transparent 40%),
-    radial-gradient(circle at 92% 12%, rgba(43, 111, 107, 0.18), transparent 38%),
-    linear-gradient(180deg, #f8f1e7 0%, #efe6d8 55%, #eadfce 100%);
+    radial-gradient(circle at 10% 10%, rgba(201, 137, 122, 0.2), transparent 40%),
+    radial-gradient(circle at 90% 15%, rgba(244, 205, 197, 0.3), transparent 40%),
+    linear-gradient(180deg, #faefec 0%, #f1e0db 55%, #ead6cf 100%);
   color: var(--ink);
 }
 
@@ -113,7 +113,7 @@ button.secondary {
 
 button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 22px rgba(204, 75, 44, 0.24);
+  box-shadow: 0 12px 22px rgba(201, 137, 122, 0.28);
 }
 
 input,
@@ -141,7 +141,7 @@ select {
 
 .nav a.active {
   border-color: var(--accent);
-  background: rgba(204, 75, 44, 0.12);
+  background: rgba(201, 137, 122, 0.12);
 }
 
 .hero {
@@ -164,6 +164,13 @@ h3 {
   margin: 0 0 0.4rem 0;
 }
 
+h1,
+h2,
+h3 {
+  font-family: "Playfair Display", "Quicksand", serif;
+  letter-spacing: 0.2px;
+}
+
 .hero p {
   color: var(--muted);
   max-width: 45ch;
@@ -175,7 +182,7 @@ h3 {
   gap: 0.4rem;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
-  background: rgba(204, 75, 44, 0.12);
+  background: rgba(201, 137, 122, 0.15);
   color: var(--accent);
   font-size: 0.85rem;
 }
@@ -218,7 +225,7 @@ h3 {
   inset: -120px -80px auto auto;
   width: 240px;
   height: 240px;
-  background: radial-gradient(circle, rgba(204, 75, 44, 0.25), transparent 70%);
+  background: radial-gradient(circle, rgba(201, 137, 122, 0.25), transparent 70%);
   pointer-events: none;
 }
 
@@ -251,16 +258,9 @@ h3 {
 }
 
 .login-note {
-  background: rgba(204, 75, 44, 0.08);
+  background: rgba(201, 137, 122, 0.12);
   border-radius: 14px;
   padding: 0.9rem 1rem;
-}
-
-.error-text {
-  color: #9b2d1b;
-  background: rgba(204, 75, 44, 0.08);
-  border-radius: 10px;
-  padding: 0.5rem 0.75rem;
 }
 
 .kpi {
@@ -275,6 +275,13 @@ h3 {
 
 .list span {
   color: var(--muted);
+}
+
+.error-text {
+  color: #9b2d1b;
+  background: rgba(201, 137, 122, 0.12);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
 }
 
 @media (max-width: 720px) {

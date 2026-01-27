@@ -13,12 +13,25 @@ const blank = {
   notesPublic: ""
 };
 
+const reminderTemplates = [
+  {
+    title: "Hora de renovar o corte",
+    message: "Oi! Seu prazo para renovar o corte esta chegando. Quer agendar?"
+  },
+  {
+    title: "Manutencao do cabelo",
+    message: "Oi! Que tal manter seu cabelo em dia? Posso te sugerir um horario."
+  }
+];
+
 const OwnerAgenda = () => {
   const [items, setItems] = useState<any[]>([]);
   const [form, setForm] = useState<any>(blank);
+  const [clients, setClients] = useState<any[]>([]);
 
   const load = () => {
     apiFetch<any[]>("/owner/appointments").then(setItems).catch(() => setItems([]));
+    apiFetch<any[]>("/owner/users").then(setClients).catch(() => setClients([]));
   };
 
   useEffect(() => {
@@ -56,8 +69,15 @@ const OwnerAgenda = () => {
         <h2>Agenda</h2>
         <div className="grid grid-2">
           <label>
-            Cliente (userId)
-            <input value={form.userId} onChange={(e) => setForm({ ...form, userId: e.target.value })} />
+            Cliente
+            <select value={form.userId} onChange={(e) => setForm({ ...form, userId: e.target.value })}>
+              <option value="">Selecione</option>
+              {clients.map((client) => (
+                <option key={client.userId} value={client.userId}>
+                  {client.nicknamePublic || client.name || client.email}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             Inicio
@@ -114,6 +134,18 @@ const OwnerAgenda = () => {
                   Excluir
                 </button>
               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="card">
+        <h3>Modelos de lembrete</h3>
+        <div className="list">
+          {reminderTemplates.map((template) => (
+            <div key={template.title} className="card soft">
+              <strong>{template.title}</strong>
+              <p>{template.message}</p>
+              <p style={{ color: "var(--muted)" }}>Copie e envie pelo push no painel inicial.</p>
             </div>
           ))}
         </div>
