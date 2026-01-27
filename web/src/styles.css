@@ -277,6 +277,31 @@ h3 {
   color: var(--muted);
 }
 
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 0.7rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+.data-table th {
+  font-weight: 700;
+  color: var(--ink);
+  background: rgba(201, 137, 122, 0.08);
+}
+
 .error-text {
   color: #9b2d1b;
   background: rgba(201, 137, 122, 0.12);

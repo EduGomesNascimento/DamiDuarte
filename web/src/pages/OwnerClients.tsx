@@ -15,6 +15,7 @@ const blank = {
 const OwnerClients = () => {
   const [items, setItems] = useState<any[]>([]);
   const [form, setForm] = useState<any>(blank);
+  const [query, setQuery] = useState("");
 
   const load = () => {
     apiFetch<any[]>("/owner/users").then(setItems).catch(() => setItems([]));
@@ -23,6 +24,13 @@ const OwnerClients = () => {
   useEffect(() => {
     load();
   }, []);
+
+  const filtered = items.filter((item) => {
+    const hay = `${item.name || ""} ${item.email || ""} ${item.nicknamePublic || ""} ${
+      item.nicknamePrivate || ""
+    } ${item.phoneE164 || ""}`.toLowerCase();
+    return hay.includes(query.toLowerCase());
+  });
 
   const handleSubmit = async () => {
     if (form.userId) {
@@ -97,30 +105,56 @@ const OwnerClients = () => {
       </div>
       <div className="card">
         <h3>Lista</h3>
+        <label>
+          Buscar cliente
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Nome, email, apelido..." />
+        </label>
         <div className="list">
-          {items.length === 0 && (
+          {filtered.length === 0 && (
             <div className="card soft">
               <strong>Sem clientes cadastradas</strong>
               <p>Crie a primeira cliente para comecar.</p>
             </div>
           )}
-          {items.map((item) => (
-            <div key={item.userId} className="card">
-              <strong>{item.name}</strong>
-              <div>{item.email}</div>
-              <div>{item.phoneE164}</div>
-              <div>{item.nicknamePrivate}</div>
-              <div>Status: {item.active ? "Ativa" : "Inativa"}</div>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                <button className="secondary" onClick={() => handleEdit(item)}>
-                  Editar
-                </button>
-                <button className="secondary" onClick={() => handleDeactivate(item.userId)}>
-                  Desativar
-                </button>
-              </div>
+          {filtered.length > 0 && (
+            <div className="table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Apelido publico</th>
+                    <th>Apelido privado</th>
+                    <th>Status</th>
+                    <th>Acoes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((item) => (
+                    <tr key={item.userId}>
+                      <td>{item.name}</td>
+                      <td>{item.email}</td>
+                      <td>{item.phoneE164}</td>
+                      <td>{item.nicknamePublic}</td>
+                      <td>{item.nicknamePrivate}</td>
+                      <td>{item.active ? "Ativa" : "Inativa"}</td>
+                      <td>
+                        <div style={{ display: "flex", gap: "0.5rem" }}>
+                          <button className="secondary" onClick={() => handleEdit(item)}>
+                            Editar
+                          </button>
+                          <button className="secondary" onClick={() => handleDeactivate(item.userId)}>
+                            Desativar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </section>
