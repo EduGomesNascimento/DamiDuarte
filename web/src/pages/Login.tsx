@@ -82,7 +82,7 @@ const Login = () => {
           <div className="login-actions">
             <div ref={buttonRef} />
             {loading && <p>Carregando login...</p>}
-            {error && <p>{error}</p>}
+            {error && <p className="error-text">{error}</p>}
           </div>
           <div className="login-highlights">
             <div className="highlight-card">
@@ -94,6 +94,11 @@ const Login = () => {
               <span className="badge">Historico</span>
               <strong>Ultimos 30 dias</strong>
               <p>Valores e registros para facilitar seu controle.</p>
+            </div>
+            <div className="highlight-card">
+              <span className="badge">Novidades</span>
+              <strong>Anuncios e catalogo</strong>
+              <p>Novos produtos e recados importantes.</p>
             </div>
           </div>
         </div>

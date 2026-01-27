@@ -36,12 +36,17 @@ export const apiFetch = async <T>(
     method = "POST";
   }
 
-  const response = await fetch(url, {
-    ...options,
-    method,
-    headers,
-    body
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      method,
+      headers,
+      body
+    });
+  } catch {
+    throw new Error("API indisponivel. Confirme VITE_API_BASE e o deploy do Apps Script.");
+  }
 
   if (!response.ok) {
     const text = await response.text();
