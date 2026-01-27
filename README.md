@@ -31,7 +31,8 @@ Sistema completo para clientes e owner:
 3. Em **Project Settings > Script Properties**:
    - `SPREADSHEET_ID` = ID da planilha
    - `OWNER_EMAIL` = email da owner
-   - `WEB_ORIGIN` = `https://SEU_USUARIO.github.io`
+   - `WEB_ORIGIN` = origens permitidas (separadas por virgula)
+     - exemplo: `https://SEU_USUARIO.github.io,http://localhost:5173`
    - `GOOGLE_CLIENT_ID` = Client ID do OAuth
    - `ONESIGNAL_APP_ID` = (opcional)
    - `ONESIGNAL_API_KEY` = (opcional)
