@@ -75,7 +75,10 @@ const Login = () => {
         <div className="card login-hero soft">
           <div className="login-logo">
             <img src={`${import.meta.env.BASE_URL}icone2.png`} alt="Dami Duarte" />
-            <span>Dami Duarte</span>
+            <div>
+              <strong>Dami Duarte</strong>
+              <div className="muted">Beleza &amp; cuidados pessoais</div>
+            </div>
           </div>
           <h1>Agenda e novidades em um so lugar</h1>
           <p>Entre com Google para ver seus horarios, historico e novidades.</p>
@@ -84,23 +87,23 @@ const Login = () => {
             {loading && <p>Carregando login...</p>}
             {error && <p className="error-text">{error}</p>}
           </div>
-          <div className="login-highlights">
-            <div className="highlight-card">
+          <ul className="login-topics">
+            <li>
               <span className="badge">Agenda</span>
               <strong>Horarios organizados</strong>
               <p>Seus atendimentos e ajustes em tempo real.</p>
-            </div>
-            <div className="highlight-card">
+            </li>
+            <li>
               <span className="badge">Historico</span>
               <strong>Ultimos 30 dias</strong>
               <p>Valores e registros para facilitar seu controle.</p>
-            </div>
-            <div className="highlight-card">
+            </li>
+            <li>
               <span className="badge">Novidades</span>
               <strong>Anuncios e catalogo</strong>
               <p>Novos produtos e recados importantes.</p>
-            </div>
-          </div>
+            </li>
+          </ul>
         </div>
         <div className="card login-panel">
           <span className="badge">Push no iPhone</span>
