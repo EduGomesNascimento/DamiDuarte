@@ -1,6 +1,9 @@
 import { config } from "../lib/config";
+import { getMoonPhase } from "../lib/moon";
 
 const About = () => {
+  const today = new Date();
+  const moon = getMoonPhase(today);
   return (
     <section className="grid">
       <div className="card hero soft">
@@ -32,6 +35,16 @@ const About = () => {
           alt="Dami Duarte"
           style={{ width: "100%", maxWidth: 420, borderRadius: 18, marginTop: "1rem" }}
         />
+      </div>
+      <div className="card">
+        <h2>Fase da lua</h2>
+        <p>
+          {moon.emoji} <strong>{moon.name}</strong> (idade aproximada: {moon.ageDays} dias)
+        </p>
+        <p>{moon.description}</p>
+        <p style={{ color: "var(--muted)" }}>
+          Observacao: isso e uma crença popular e nao substitui orientacao profissional.
+        </p>
       </div>
     </section>
   );
