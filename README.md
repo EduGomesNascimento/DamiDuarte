@@ -1,47 +1,27 @@
-# Dami Duarte - Web + Apps Script
+# Dami Duarte - Web + Firebase
 
 ## Visao geral
 Sistema completo para clientes e owner:
 - Frontend estatico (GitHub Pages)
-- Backend (Google Apps Script)
-- Banco (Google Sheets)
-- Login Google (GIS)
+- Backend (Firebase Auth + Firestore)
+- Login Google (Firebase Auth)
 - Push (OneSignal) com feature flag
 
 ## Estrutura
 - `web/`: Vite + React + TypeScript (PWA + UI)
-- `apps-script/`: Google Apps Script (REST + Sheets)
+- `apps-script/`: legado (nao usado no modo Firebase)
 - `docs/`: output do build (GitHub Pages)
 
-## 1) Google OAuth Client ID (GIS)
-1. Google Cloud Console > APIs & Services > Credentials
-2. Create Credentials > OAuth client ID > Web application
-3. Authorized JavaScript origins:
-   - `http://localhost:5173`
-   - `https://SEU_USUARIO.github.io`
-4. Authorized redirect URIs: (deixe vazio)
+## 1) Firebase
+1. Crie um projeto no Firebase Console.
+2. Ative **Authentication > Sign-in method > Google**.
+3. Em **Authentication > Settings > Authorized domains**:
+   - `localhost`
+   - `edugomesnascimento.github.io`
+4. Ative **Firestore Database** (modo production).
+5. Copie as configs do app web (Project Settings > General > Your apps).
 
-## 2) Google Sheets
-1. Crie uma planilha Google
-2. Copie o ID (URL da planilha)
-
-## 3) Apps Script (Backend)
-1. Crie um projeto Apps Script
-2. Cole `apps-script/Code.gs` e `apps-script/appsscript.json`
-3. Em **Project Settings > Script Properties**:
-   - `SPREADSHEET_ID` = ID da planilha
-   - `OWNER_EMAIL` = email da owner
-   - `WEB_ORIGIN` = origens permitidas (separadas por virgula)
-     - exemplo: `https://SEU_USUARIO.github.io,http://localhost:5173`
-   - `GOOGLE_CLIENT_ID` = Client ID do OAuth
-   - `ONESIGNAL_APP_ID` = (opcional)
-   - `ONESIGNAL_API_KEY` = (opcional)
-4. Deploy > New deployment > Web App
-   - Execute as: **Me**
-   - Who has access: **Anyone**
-5. Copie a URL do Web App (API base)
-
-## 4) Frontend (GitHub Pages)
+## 2) Frontend (GitHub Pages)
 ### Rodar local
 ```bash
 cd web
@@ -50,16 +30,24 @@ npm run dev
 ```
 Crie `web/.env.local`:
 ```
-VITE_API_BASE=URL_DO_WEB_APP
-VITE_GOOGLE_CLIENT_ID=SEU_CLIENT_ID
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
 VITE_ONESIGNAL_APP_ID=SEU_ONESIGNAL_APP_ID
 VITE_OWNER_EMAIL=seu-email@dominio.com
 ```
 
 ### Deploy automatico (GitHub Actions)
 1. Repo > Settings > Secrets and variables > Actions:
-   - `VITE_API_BASE`
-   - `VITE_GOOGLE_CLIENT_ID`
+   - `VITE_FIREBASE_API_KEY`
+   - `VITE_FIREBASE_AUTH_DOMAIN`
+   - `VITE_FIREBASE_PROJECT_ID`
+   - `VITE_FIREBASE_STORAGE_BUCKET`
+   - `VITE_FIREBASE_MESSAGING_SENDER_ID`
+   - `VITE_FIREBASE_APP_ID`
    - `VITE_ONESIGNAL_APP_ID`
    - `VITE_OWNER_EMAIL`
 2. Push na `main` dispara o deploy.
@@ -68,22 +56,12 @@ VITE_OWNER_EMAIL=seu-email@dominio.com
 4. URL final:
    - `https://SEU_USUARIO.github.io/SEU_REPO/`
 
-## Endpoints (resumo)
-- POST `/auth/me` (login com ID token)
-- GET/PUT `/me`
-- GET `/appointments` (cliente)
-- GET `/history?days=30` (cliente)
-- GET `/announcements` (publicados)
-- GET `/products` (ativos)
-- OWNER:
-  - GET/POST/PUT/DELETE `/owner/users`
-  - GET/POST/PUT/DELETE `/owner/appointments`
-  - GET `/owner/history?days=30`
-  - GET `/owner/stats/week`
-  - GET `/owner/stats/month`
-  - GET/POST/PUT/DELETE `/owner/announcements`
-  - GET/POST/PUT/DELETE `/owner/products`
-  - POST `/owner/push`
+## Firestore (colecoes)
+- `users`
+- `appointments`
+- `announcements`
+- `products`
+- `audit` (opcional)
 
 ## Status e totais
 - Week: ultimos 7 dias
@@ -95,7 +73,7 @@ VITE_OWNER_EMAIL=seu-email@dominio.com
   - `web/public/OneSignalSDKWorker.js`
   - `web/public/OneSignalSDKUpdaterWorker.js`
 - No frontend, a inscricao e feita apos login.
-- Envio via `/owner/push`.
+- Envio via `/owner/push` (placeholder no modo Firebase).
 - Se OneSignal nao estiver configurado, o app continua funcionando.
 
 ## Checklist final
@@ -106,5 +84,32 @@ VITE_OWNER_EMAIL=seu-email@dominio.com
 - WhatsApp + Instagram configurados
 - GitHub Pages publicado
 
+## Regras Firestore (cole em Rules)
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner() {
+      return request.auth != null && request.auth.token.email == "OWNER_EMAIL";
+    }
+    match /users/{userId} {
+      allow read, write: if request.auth != null && (request.auth.uid == userId || isOwner());
+    }
+    match /appointments/{id} {
+      allow read, write: if request.auth != null && (isOwner() || request.resource.data.userId == request.auth.uid || resource.data.userId == request.auth.uid);
+    }
+    match /announcements/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+    match /products/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+  }
+}
+```
+Troque `OWNER_EMAIL` pelo email da Dami.
+
 ## Known issues
-- Se der erro de CORS, confirme `WEB_ORIGIN` no Apps Script e `VITE_API_BASE` no GitHub Secrets.
+- Push via OneSignal ainda depende de backend seguro.

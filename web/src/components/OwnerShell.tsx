@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { clearSession } from "../lib/session";
+import { signOutUser } from "../lib/firebase";
 
 const linkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "active" : "");
 
@@ -7,8 +7,7 @@ export const OwnerShell = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    clearSession();
-    navigate("/owner/login");
+    signOutUser().finally(() => navigate("/owner/login"));
   };
 
   return (

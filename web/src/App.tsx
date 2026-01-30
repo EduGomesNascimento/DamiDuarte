@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { BrowserRouter } from "react-router-dom";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
@@ -13,12 +14,20 @@ import OwnerClients from "./pages/OwnerClients";
 import OwnerNews from "./pages/OwnerNews";
 import OwnerProducts from "./pages/OwnerProducts";
 import OwnerHistory from "./pages/OwnerHistory";
-import { getSession } from "./lib/session";
+import { getSession, type Session } from "./lib/session";
+import { subscribeToAuth } from "./lib/firebase";
 import { AppShell } from "./components/AppShell";
 import { OwnerShell } from "./components/OwnerShell";
 
 const App = () => {
-  const session = getSession();
+  const [session, setSession] = useState<Session | null>(() => getSession());
+
+  useEffect(() => {
+    const unsub = subscribeToAuth((next) => {
+      setSession(next);
+    });
+    return () => unsub();
+  }, []);
 
   return (
     <BrowserRouter

@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { clearSession, getSession } from "../lib/session";
+import { getSession } from "../lib/session";
+import { signOutUser } from "../lib/firebase";
 
 const linkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "active" : "");
 
@@ -8,8 +9,7 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    clearSession();
-    navigate("/login");
+    signOutUser().finally(() => navigate("/login"));
   };
 
   return (
