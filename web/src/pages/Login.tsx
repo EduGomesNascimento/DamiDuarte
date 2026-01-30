@@ -72,12 +72,12 @@ const Login = () => {
   return (
     <main className="app-shell">
       <section className="login-layout">
-        <div className="card login-hero soft">
+        <div className="login-hero">
           <div className="login-logo">
             <img src={`${import.meta.env.BASE_URL}icone2.png`} alt="Dami Duarte" />
             <div>
               <strong>Dami Duarte</strong>
-              <div className="muted">Beleza &amp; cuidados pessoais</div>
+              <div className="muted">Area da cliente</div>
             </div>
           </div>
           <h1>Agenda e novidades em um so lugar</h1>
@@ -105,7 +105,7 @@ const Login = () => {
             </li>
           </ul>
         </div>
-        <div className="card login-panel">
+        <div className="login-panel">
           <span className="badge">Push no iPhone</span>
           <h2>Ative as notificacoes</h2>
           <p>

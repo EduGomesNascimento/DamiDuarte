@@ -36,7 +36,6 @@ export const apiFetch = async <T>(
   }
 
   if (method === "PUT" || method === "DELETE") {
-    headers.set("X-HTTP-Method-Override", method);
     const joiner = url.includes("?") ? "&" : "?";
     url = `${url}${joiner}__method=${method}`;
     method = "POST";

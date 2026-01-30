@@ -6,9 +6,12 @@ const getRuntime = () => {
   const params = new URLSearchParams(window.location.search);
   const apiBase = params.get("apiBase");
   if (apiBase) {
-    localStorage.setItem("dami.apiBase", apiBase);
+    localStorage.setItem("dami.apiBase.v2", apiBase);
   }
-  const stored = localStorage.getItem("dami.apiBase") || "";
+  if (localStorage.getItem("dami.apiBase")) {
+    localStorage.removeItem("dami.apiBase");
+  }
+  const stored = localStorage.getItem("dami.apiBase.v2") || "";
   return stored ? { apiBase: stored } : {};
 };
 
