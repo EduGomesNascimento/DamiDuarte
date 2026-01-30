@@ -21,13 +21,19 @@ import { OwnerShell } from "./components/OwnerShell";
 
 const App = () => {
   const [session, setSession] = useState<Session | null>(() => getSession());
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const unsub = subscribeToAuth((next) => {
       setSession(next);
+      setReady(true);
     });
     return () => unsub();
   }, []);
+
+  if (!ready) {
+    return <div className="app-shell">Carregando...</div>;
+  }
 
   return (
     <BrowserRouter
