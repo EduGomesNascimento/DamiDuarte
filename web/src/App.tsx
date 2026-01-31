@@ -42,8 +42,26 @@ const App = () => {
     >
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/owner/login" element={<OwnerLogin />} />
+        <Route
+          path="/login"
+          element={
+            session?.role ? (
+              <Navigate to={session.role === "OWNER" ? "/owner/home" : "/home"} replace />
+            ) : (
+              <Login />
+            )
+          }
+        />
+        <Route
+          path="/owner/login"
+          element={
+            session?.role ? (
+              <Navigate to={session.role === "OWNER" ? "/owner/home" : "/home"} replace />
+            ) : (
+              <OwnerLogin />
+            )
+          }
+        />
 
         <Route
           path="/home"

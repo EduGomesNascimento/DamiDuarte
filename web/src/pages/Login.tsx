@@ -19,7 +19,7 @@ const Login = () => {
       } catch {
         // OneSignal is optional
       }
-      navigate(session.user.role === "OWNER" ? "/owner/home" : "/home");
+      navigate(session.user.role === "OWNER" ? "/owner/home" : "/home", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao autenticar");
     } finally {
