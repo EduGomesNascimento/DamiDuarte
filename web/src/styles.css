@@ -67,9 +67,12 @@ main {
 }
 
 .brand img {
-  width: 48px;
-  height: 48px;
+  width: 54px;
+  height: 54px;
   border-radius: 16px;
+  object-fit: cover;
+  background: #fff;
+  border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
 }
 
@@ -207,14 +210,15 @@ h3 {
 .login-logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.8rem;
   font-weight: 700;
 }
 
 .login-logo img {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  object-fit: cover;
   background: #fff;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
