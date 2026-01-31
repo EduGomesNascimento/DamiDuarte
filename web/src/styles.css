@@ -67,9 +67,9 @@ main {
 }
 
 .brand img {
-  width: 54px;
-  height: 54px;
-  border-radius: 16px;
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
   object-fit: cover;
   background: #fff;
   border: 1px solid var(--border);
@@ -215,9 +215,9 @@ h3 {
 }
 
 .login-logo img {
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
+  width: 88px;
+  height: 88px;
+  border-radius: 26px;
   object-fit: cover;
   background: #fff;
   border: 1px solid var(--border);
