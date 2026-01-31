@@ -32,7 +32,7 @@ const Login = () => {
       <section className="login-layout">
         <div className="login-hero">
           <div className="login-logo">
-            <img src={`${import.meta.env.BASE_URL}icone2.png`} alt="Dami Duarte" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Dami Duarte" />
             <div>
               <strong>Dami Duarte</strong>
               <div className="muted">Area da cliente</div>
