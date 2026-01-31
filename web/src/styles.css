@@ -70,7 +70,8 @@ main {
   width: 68px;
   height: 68px;
   border-radius: 20px;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 6px;
   background: #fff;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
@@ -218,7 +219,8 @@ h3 {
   width: 88px;
   height: 88px;
   border-radius: 26px;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 6px;
   background: #fff;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
