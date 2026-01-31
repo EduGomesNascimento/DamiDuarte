@@ -1,4 +1,4 @@
-const CACHE_NAME = "dami-v4";
+const CACHE_NAME = "dami-v5";
 const CORE = ["./", "./index.html"];
 
 self.addEventListener("install", (event) => {
@@ -20,7 +20,15 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
   if (event.request.mode === "navigate") {
-    event.respondWith(caches.match("./index.html"));
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put("./index.html", copy));
+          return response;
+        })
+        .catch(() => caches.match("./index.html"))
+    );
     return;
   }
 
