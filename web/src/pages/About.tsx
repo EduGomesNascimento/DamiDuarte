@@ -43,7 +43,7 @@ const About = () => {
         </p>
         <p>{moon.description}</p>
         <p style={{ color: "var(--muted)" }}>
-          Observacao: isso e uma crença popular e nao substitui orientacao profissional.
+          Observacao: isso e uma crenca popular e nao substitui orientacao profissional.
         </p>
       </div>
     </section>

@@ -11,43 +11,43 @@ const KNOWN_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14, 0);
 const PHASES: Array<{ name: string; emoji: string; description: string }> = [
   {
     name: "Lua Nova",
-    emoji: "??",
-    description: "Cren?a popular: fase de renova??o e fortalecimento."
+    emoji: "Nova",
+    description: "Crenca popular: fase de renovacao e fortalecimento."
   },
   {
     name: "Crescente",
-    emoji: "??",
-    description: "Cren?a popular: crescimento mais r?pido dos fios."
+    emoji: "Cresc.",
+    description: "Crenca popular: crescimento mais rapido dos fios."
   },
   {
     name: "Quarto Crescente",
-    emoji: "??",
-    description: "Cren?a popular: bom para volume e vigor."
+    emoji: "1/4",
+    description: "Crenca popular: bom para volume e vigor."
   },
   {
     name: "Gibosa Crescente",
-    emoji: "??",
-    description: "Cren?a popular: favorece brilho e alinhamento."
+    emoji: "Gib.",
+    description: "Crenca popular: favorece brilho e alinhamento."
   },
   {
     name: "Lua Cheia",
-    emoji: "??",
-    description: "Cren?a popular: mais volume; aten??o ao frizz."
+    emoji: "Cheia",
+    description: "Crenca popular: mais volume; atencao ao frizz."
   },
   {
     name: "Gibosa Minguante",
-    emoji: "??",
-    description: "Cren?a popular: bom para reduzir volume."
+    emoji: "Gib.",
+    description: "Crenca popular: bom para reduzir volume."
   },
   {
     name: "Quarto Minguante",
-    emoji: "??",
-    description: "Cren?a popular: cortes para manuten??o."
+    emoji: "1/4",
+    description: "Crenca popular: cortes para manutencao."
   },
   {
     name: "Minguante",
-    emoji: "??",
-    description: "Cren?a popular: crescimento mais lento."
+    emoji: "Ming.",
+    description: "Crenca popular: crescimento mais lento."
   }
 ];
 
