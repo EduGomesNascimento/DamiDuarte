@@ -34,8 +34,8 @@ const Login = () => {
               <div className="muted">Area da cliente</div>
             </div>
           </div>
-          <h1>Agenda e novidades em um so lugar</h1>
-          <p>Entre com Google para ver seus horarios, historico e novidades.</p>
+          <h1>Sua beleza, em um lugar leve.</h1>
+          <p>Entre com Google para acompanhar seus horarios.</p>
           <div className="login-actions">
             <button onClick={handleLogin} disabled={loading}>
               {loading ? "Entrando..." : "Fazer login com Google"}
@@ -45,18 +45,18 @@ const Login = () => {
           <ul className="login-topics">
             <li>
               <span className="badge">Agenda</span>
-              <strong>Horarios organizados</strong>
-              <p>Seus atendimentos e ajustes em tempo real.</p>
+              <strong>Horarios sempre a mao</strong>
+              <p>Rapidinho, sem complicacao.</p>
             </li>
             <li>
               <span className="badge">Historico</span>
-              <strong>Ultimos 30 dias</strong>
-              <p>Valores e registros para facilitar seu controle.</p>
+              <strong>Seu historico</strong>
+              <p>Um resumo do que voce fez.</p>
             </li>
             <li>
               <span className="badge">Novidades</span>
-              <strong>Anuncios e catalogo</strong>
-              <p>Novos produtos e recados importantes.</p>
+              <strong>Novidades da Dami</strong>
+              <p>Recadinhos e novidades do studio.</p>
             </li>
           </ul>
         </div>
@@ -64,16 +64,16 @@ const Login = () => {
           <span className="badge">Push no iPhone</span>
           <h2>Ative as notificacoes</h2>
           <p>
-            Para receber notificacoes no iOS, abra no Safari e toque em Compartilhar &gt; Adicionar a Tela de Inicio.
+            No iPhone, abra no Safari e toque em Compartilhar &gt; Adicionar a Tela de Inicio.
           </p>
           <div className="divider" />
           <div>
             <strong>WhatsApp direto</strong>
-            <p>Agende horarios e confirme atendimentos por WhatsApp.</p>
+            <p>Fale com a Dami quando quiser.</p>
           </div>
           <div className="login-note">
-            <strong>Atendimento personalizado</strong>
-            <p>Beleza, cosmeticos e cuidados pessoais com a Dami.</p>
+            <strong>Atendimento carinhoso</strong>
+            <p>Beleza e cuidado em cada detalhe.</p>
           </div>
         </div>
       </section>
