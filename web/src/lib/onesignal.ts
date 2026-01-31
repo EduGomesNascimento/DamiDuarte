@@ -22,22 +22,44 @@ export const loadOneSignal = async (): Promise<void> => {
 
 export const initOneSignal = async (externalId: string, email: string) => {
   if (!config.oneSignalAppId) return;
-  await loadOneSignal();
-  const OneSignal = window.OneSignal || [];
-  OneSignal.push(() => {
-    OneSignal.init({
-      appId: config.oneSignalAppId,
-      allowLocalhostAsSecureOrigin: true
+  try {
+    await loadOneSignal();
+    const OneSignal: any = window.OneSignal || [];
+    OneSignal.push(() => {
+      try {
+        OneSignal.init({
+          appId: config.oneSignalAppId,
+          allowLocalhostAsSecureOrigin: true
+        });
+        if (OneSignal.setExternalUserId) {
+          OneSignal.setExternalUserId(externalId);
+        } else if (OneSignal.User && OneSignal.User.addAlias) {
+          OneSignal.User.addAlias("external_id", externalId);
+        }
+        if (OneSignal.setEmail) {
+          OneSignal.setEmail(email);
+        } else if (OneSignal.User && OneSignal.User.addEmail) {
+          OneSignal.User.addEmail(email);
+        }
+      } catch {
+        // best-effort only; do not block login
+      }
     });
-    OneSignal.setExternalUserId(externalId);
-    OneSignal.setEmail(email);
-  });
+  } catch {
+    // ignore OneSignal errors
+  }
 };
 
 export const promptOneSignal = async () => {
   if (!config.oneSignalAppId) return;
-  const OneSignal = window.OneSignal || [];
-  OneSignal.push(() => {
-    OneSignal.Slidedown.promptPush();
-  });
+  try {
+    const OneSignal: any = window.OneSignal || [];
+    OneSignal.push(() => {
+      if (OneSignal.Slidedown && OneSignal.Slidedown.promptPush) {
+        OneSignal.Slidedown.promptPush();
+      }
+    });
+  } catch {
+    // ignore
+  }
 };

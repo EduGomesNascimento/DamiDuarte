@@ -13,8 +13,12 @@ const Login = () => {
       setError(null);
       setLoading(true);
       const session = await signInWithGoogle();
-      await initOneSignal(session.user.userId, session.user.email);
-      await promptOneSignal();
+      try {
+        await initOneSignal(session.user.userId, session.user.email);
+        await promptOneSignal();
+      } catch {
+        // OneSignal is optional
+      }
       navigate(session.user.role === "OWNER" ? "/owner/home" : "/home");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao autenticar");
