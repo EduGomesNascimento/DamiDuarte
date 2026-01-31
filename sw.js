@@ -1,4 +1,4 @@
-const CACHE_NAME = "dami-v5";
+const CACHE_NAME = "dami-v6";
 const CORE = ["./", "./index.html"];
 
 self.addEventListener("install", (event) => {
