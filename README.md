@@ -8,9 +8,11 @@ Sistema completo para clientes e owner:
 - Push (OneSignal) com feature flag
 
 ## Estrutura
-- `web/`: Vite + React + TypeScript (PWA + UI)
-- `apps-script/`: legado (nao usado no modo Firebase)
-- `docs/`: output do build (GitHub Pages)
+- `web/`: app Vite + React + TypeScript (PWA + UI)
+- `firestore.rules`: regras de segurança do Firestore
+- `.github/workflows/deploy.yml`: build e publicação no GitHub Pages (branch `gh-pages`)
+- `design/`: arte original do ícone (não é usada pelo site)
+- `legado/`: versão antiga com Google Apps Script e seu checklist (não usada no modo Firebase)
 
 ## 1) Firebase
 1. Crie um projeto no Firebase Console.
@@ -55,6 +57,10 @@ VITE_OWNER_EMAIL=seu-email@dominio.com
    - Source: `gh-pages` / root
 4. URL final:
    - `https://SEU_USUARIO.github.io/SEU_REPO/`
+   - O caminho é lido do nome do repositório durante o build, então renomear o
+     repositório não quebra o site: basta rodar o deploy de novo (push na `main`
+     ou *Actions > Deploy GitHub Pages > Run workflow*).
+   - Para domínio próprio, defina `VITE_BASE=/` no passo de build.
 
 ## Firestore (colecoes)
 - `users`

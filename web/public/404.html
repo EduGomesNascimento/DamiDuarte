@@ -4,9 +4,11 @@
     <meta charset="utf-8" />
     <title>Dami Duarte</title>
     <script>
+      // Em <usuario>.github.io/<repositorio>/ o primeiro trecho do caminho e o
+      // nome do repositorio; lido da URL para sobreviver a renomeacoes.
       const segment = window.location.pathname.split("/").filter(Boolean)[0] || "";
-      const repo = "DamiDuarte";
-      const base = segment === repo ? `/${repo}` : "";
+      const isProjectPage = window.location.hostname.endsWith(".github.io") && segment !== "";
+      const base = isProjectPage ? `/${segment}` : "";
       const target = base + "/?redirect=" + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
       window.location.replace(target);
     </script>
